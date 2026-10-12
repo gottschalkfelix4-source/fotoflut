@@ -1,0 +1,89 @@
+name: fotoflut
+
+services:
+  app:
+    image: ghcr.io/gottschalkfelix4-source/fotoflut:latest
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    restart: unless-stopped
+    environment:
+      FF_BASE_URL: ${FF_BASE_URL:-http://localhost:8080}
+      FF_DB_URL: postgresql://fotoflut:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD in .env setzen}@db:5432/fotoflut
+      FF_REDIS_URL: redis://redis:6379
+    volumes:
+      - ${FF_LIBRARY_DIR:-./data/library}:/data/library
+      - ${FF_DERIV_DIR:-./data/derivatives}:/data/derivatives
+      - ${FF_UPLOAD_DIR:-./data/upload}:/data/upload
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    ports:
+      - "8080:8080" # entfällt, wenn app hinter proxy/Caddy ohne eigenes Port-Mapping läuft
+
+  ml:
+    image: ghcr.io/gottschalkfelix4-source/fotoflut-ml:latest
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.ml
+    restart: unless-stopped
+    environment:
+      FF_ML_DEVICE: ${FF_ML_DEVICE:-GPU}
+    devices:
+      - /dev/dri:/dev/dri # Intel Arc; auf Nicht-GPU-Hosts entfernen oder FF_ML_DEVICE=CPU
+    group_add:
+      - "${FF_RENDER_GID:-100}"
+    volumes:
+      - ${FF_MODEL_CACHE:-./data/model-cache}:/model-cache
+
+  db:
+    image: pgvector/pgvector:pg16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: fotoflut
+      POSTGRES_DB: fotoflut
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?}
+    volumes:
+      - ${FF_DB_DIR:-./data/postgres}:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U fotoflut"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    volumes:
+      - ${FF_REDIS_DIR:-./data/redis}:/data
+
+  webdav:
+    image: hacdias/webdav:latest
+    restart: unless-stopped
+    environment:
+      CONFIG: /config/config.yml
+    volumes:
+      - ./config/webdav:/config:ro
+      - ${FF_UPLOAD_DIR:-./data/upload}:/data/upload
+    ports:
+      - "6065:6065" # direkt erreichbar; alternativ über Reverse-Proxy routen
+
+  proxy:
+    image: caddy:2
+    restart: unless-stopped
+    profiles: ["proxy"]
+    environment:
+      FF_DOMAIN: ${FF_DOMAIN:-localhost}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./config/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+    depends_on:
+      - app
+
+volumes:
+  caddy_data:

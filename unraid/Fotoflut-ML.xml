@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Container version="2">
+  <Name>Fotoflut-ML</Name>
+  <Repository>ghcr.io/gottschalkfelix4-source/fotoflut-ml</Repository>
+  <Registry>https://github.com/gottschalkfelix4-source/fotoflut/pkgs/container/fotoflut-ml</Registry>
+  <Network>bridge</Network>
+  <MyIP></MyIP>
+  <Shell>sh</Shell>
+  <Privileged>false</Privileged>
+  <ExtraParams>--device /dev/dri --group-add render</ExtraParams>
+  <SupportURL>https://github.com/gottschalkfelix4-source/fotoflut/issues</SupportURL>
+  <Project>https://github.com/gottschalkfelix4-source/fotoflut</Project>
+  <UpstreamProject>Fotoflut ML worker (OpenVINO)</UpstreamProject>
+  <TemplateURL>https://raw.githubusercontent.com/gottschalkfelix4-source/fotoflut/main/unraid/Fotoflut-ML.xml</TemplateURL>
+  <TemplateVersion>2026.10.12</TemplateVersion>
+  <TemplateTag>Stable</TemplateTag>
+  <Icon>https://raw.githubusercontent.com/gottschalkfelix4-source/fotoflut/main/docs/logo.png</Icon>
+  <Category>Tools</Category>
+  <WebUI></WebUI>
+  <Overview>ML-Worker für Fotoflut: Gesichts-Erkennung/Clustering und CLIP-Suche via ONNX Runtime + OpenVINO. Nutzt die Intel Arc GPU über /dev/dri (ExtraParams); FF_ML_DEVICE=CPU als Fallback. Muss dasselbe Docker-Netzwerk wie die Fotoflut-App teilen.</Overview>
+  <Documentation>https://github.com/gottschalkfelix4-source/fotoflut#readme</Documentation>
+  <Parameters>
+    <Config Name="ml_port" Target="8081" Default="8081" Mode="tcp" Description="Interner Health-/Inference-Port" Type="Port" Display="always" Required="false" Mask="false"/>
+    <Config Name="model_cache" Target="/model-cache" Default="/mnt/user/Fotoflut/model-cache" Mode="rw" Description="Cache für ONNX/OpenVINO-Modelle" Type="Path" Display="always" Required="true" Mask="false"/>
+    <Config Name="device" Target="FF_ML_DEVICE" Default="GPU" Mode="" Description="GPU (Intel Arc via /dev/dri) oder CPU" Type="Env" Display="always" Required="true" Mask="false"/>
+  </Parameters>
+</Container>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Container version="2">
+  <Name>Fotoflut</Name>
+  <Repository>ghcr.io/gottschalkfelix4-source/fotoflut</Repository>
+  <Registry>https://github.com/gottschalkfelix4-source/fotoflut/pkgs/container/fotoflut</Registry>
+  <Network>bridge</Network>
+  <MyIP></MyIP>
+  <Shell>sh</Shell>
+  <Privileged>false</Privileged>
+  <SupportURL>https://github.com/gottschalkfelix4-source/fotoflut/issues</SupportURL>
+  <Project>https://github.com/gottschalkfelix4-source/fotoflut</Project>
+  <UpstreamProject>Fotoflut — self-hosted photo cloud (Immich-style)</UpstreamProject>
+  <TemplateURL>https://raw.githubusercontent.com/gottschalkfelix4-source/fotoflut/main/unraid/Fotoflut.xml</TemplateURL>
+  <TemplateVersion>2026.10.12</TemplateVersion>
+  <TemplateTag>Stable</TemplateTag>
+  <Icon>https://raw.githubusercontent.com/gottschalkfelix4-source/fotoflut/main/docs/logo.png</Icon>
+  <Category>Online Cloud</Category>
+  <WebUI>http://[IP]:[PORT:8080]/</WebUI>
+  <Overview>Fotoflut API + Web-UI (Immich-Alternative). Benötigt PostgreSQL (pgvector) und Redis im selben Netzwerk. Dateien vom Handy per WebDAV in FF_UPLOAD_DIR legen; der Import-Worker übernimmt den Rest. Für ML (Gesichter/semantische Suche, Intel Arc) zusätzlich das Fotoflut-ML-Template verwenden.</Overview>
+  <Documentation>https://github.com/gottschalkfelix4-source/fotoflut#readme</Documentation>
+  <Parameters>
+    <Config Name="web_port" Target="8080" Default="8080" Mode="tcp" Description="Web-UI + API Port" Type="Port" Display="always" Required="true" Mask="false"/>
+    <Config Name="library" Target="/data/library" Default="/mnt/user/Fotoflut/library" Mode="rw" Description="Foto-/Video-Originale (Bind-Mount)" Type="Path" Display="always" Required="true" Mask="false"/>
+    <Config Name="derivatives" Target="/data/derivatives" Default="/mnt/user/Fotoflut/derivatives" Mode="rw" Description="Thumbnails und abgeleitete Dateien" Type="Path" Display="always" Required="true" Mask="false"/>
+    <Config Name="upload" Target="/data/upload" Default="/mnt/user/Fotoflut/upload" Mode="rw" Description="WebDAV-Eingang (Handy-Upload landet hier)" Type="Path" Display="always" Required="true" Mask="false"/>
+    <Config Name="base_url" Target="FF_BASE_URL" Default="https://fotos.example.de" Mode="" Description="Öffentliche Basis-URL inkl. Scheme (für Share-Links hinterm Reverse-Proxy)" Type="Env" Display="always" Required="true" Mask="false"/>
+    <Config Name="db_url" Target="FF_DB_URL" Default="postgresql://fotoflut:CHANGE_ME@192.168.1.10:5432/fotoflut" Mode="" Description="PostgreSQL-Verbindung (pgvector-Image verwenden)" Type="Env" Display="always" Required="true" Mask="true"/>
+    <Config Name="redis_url" Target="FF_REDIS_URL" Default="redis://192.168.1.11:6379" Mode="" Description="Redis (Job-Queues)" Type="Env" Display="always" Required="true" Mask="false"/>
+  </Parameters>
+</Container>

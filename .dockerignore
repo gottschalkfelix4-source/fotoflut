@@ -1,0 +1,14 @@
+.git
+.github
+.qwen
+data
+docs
+node_modules
+**/node_modules
+.env
+.env.*
+unraid
+README.md
+PLAN.md
+LICENSE
+docker-compose.yml

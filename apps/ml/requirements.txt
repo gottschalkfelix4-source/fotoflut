@@ -1,0 +1,2 @@
+# Phase 3 kommt die echte Pipeline:
+# onnxruntime-openvino, openvino, numpy, pillow (Modelle: SCRFD, ArcFace, CLIP)
